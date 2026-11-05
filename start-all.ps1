@@ -8,11 +8,9 @@ Write-Host "==========================================================" -Foregro
 Write-Host "     INICIANDO ECOSISTEMA SERVILLANTAS SYSTEM" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
-# 1. Configuración de JAVA_HOME si no existe
-if (-not $env:JAVA_HOME) {
-    if (Test-Path "C:\Users\fabri\.jdks\ms-21.0.11") {
-        $env:JAVA_HOME = "C:\Users\fabri\.jdks\ms-21.0.11"
-    }
+# 1. Configuración de JAVA_HOME para Java 21
+if (Test-Path "C:\Users\fabri\.jdks\ms-21.0.11") {
+    $env:JAVA_HOME = "C:\Users\fabri\.jdks\ms-21.0.11"
 }
 if ($env:JAVA_HOME) {
     $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
@@ -50,7 +48,7 @@ foreach ($svc in $services) {
     $mvnCmd = if (Test-Path (Join-Path $svcPath "mvnw.cmd")) { "mvnw.cmd" } else { "mvn" }
     
     Start-Process -FilePath "cmd.exe" `
-        -ArgumentList "/c cd /d `"$svcPath`" && $mvnCmd spring-boot:run -Dspring-boot.run.jvmArguments=-Xmx160m > `"$logPath`" 2>&1" `
+        -ArgumentList "/c set JAVA_HOME=C:\Users\fabri\.jdks\ms-21.0.11&& set PATH=C:\Users\fabri\.jdks\ms-21.0.11\bin;%PATH%&& cd /d `"$svcPath`" && $mvnCmd spring-boot:run -Dspring-boot.run.jvmArguments=-Xmx160m > `"$logPath`" 2>&1" `
         -WindowStyle Hidden
     
     Write-Host " [INICIADO]" -ForegroundColor Green
@@ -72,3 +70,4 @@ Write-Host "      admin@servillantas.pe    / admin123  (PROPIETARIO)" -Foregroun
 Write-Host "      operador@servillantas.pe / operador123 (PERSONAL)" -ForegroundColor Yellow
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "Para detener todos los servicios ejecuta: .\stop-all.ps1" -ForegroundColor Gray
+

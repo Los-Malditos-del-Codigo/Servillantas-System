@@ -11,3 +11,4 @@ Write-Host "Buscando procesos Node (Frontend)..." -ForegroundColor Yellow
 Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
 Write-Host "[OK] Frontend detenido." -ForegroundColor Green
 Write-Host "Sistema Servillantas completamente detenido." -ForegroundColor Cyan
+

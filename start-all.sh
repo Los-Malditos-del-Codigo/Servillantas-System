@@ -45,3 +45,4 @@ echo "  Todos los servicios arrancados."
 echo "  - Frontend:    http://localhost:4200"
 echo "  - API Gateway: http://localhost:8080"
 echo "=========================================================="
+

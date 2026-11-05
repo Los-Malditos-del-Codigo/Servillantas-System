@@ -29,3 +29,5 @@ ehthumbs.db
 # Git backups
 **/.git_backup/
 .git_backup/
+
+DOCUMENTO_EXPOSICION.md
