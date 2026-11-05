@@ -1,0 +1,239 @@
+services:
+  # ============================================================================
+  # FRONTEND (Angular 19/20) - Zona desmilitarizada / Acceso cliente
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: servillantas-frontend
+    ports:
+      - "4200:80"
+    networks:
+      - frontend-net
+    depends_on:
+      - ms-api-gateway
+    restart: unless-stopped
+
+  # ============================================================================
+  # API GATEWAY (Único punto de entrada al backend - DMZ / Perimeter)
+  # OWASP API Security / ISO 27001 A.8.20 / SOC 2 CC6.6
+  # ============================================================================
+  ms-api-gateway:
+    build:
+      context: ./ms-api-gateway
+      dockerfile: Dockerfile
+    container_name: servillantas-api-gateway
+    ports:
+      - "8080:8080"  # ÚNICO puerto de backend expuesto al exterior
+    environment:
+      - SERVER_PORT=8080
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+      - JWT_SECRET=${JWT_SECRET:-dGVzdC1zZWNyZXQta2V5LXNob3VsZC1iZS12ZXJ5LWxvbmctYW5kLXNlY3VyZS0yNTYtYml0cw==}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost}
+      - AUTH_SERVICE_URL=http://ms-autenticacion-usuarios:8081
+      - PRODUCTOS_SERVICE_URL=http://msvc-producto:8082
+      - INVENTARIO_SERVICE_URL=http://msvc-inventario:8083
+      - COMPRAS_SERVICE_URL=http://ms-compras:8084
+      - VENTAS_SERVICE_URL=http://ms-ventas:8085
+      - SERVICIOS_SERVICE_URL=http://ms-servicios:8086
+      - ALERTAS_SERVICE_URL=http://ms-alertas-notificaciones:8087
+      - REPORTES_SERVICE_URL=http://ms-reportes:8088
+      - ASISTENTE_SERVICE_URL=http://ms-asistente-ia:8089
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+      - ms-eureka-server
+      - ms-config-server
+    restart: unless-stopped
+
+  # ============================================================================
+  # INFRAESTRUCTURA (Red privada interna - NO expuesta al exterior)
+  # ============================================================================
+  ms-eureka-server:
+    build:
+      context: ./ms-eureka-server
+      dockerfile: Dockerfile
+    container_name: servillantas-eureka-server
+    environment:
+      - SERVER_PORT=8761
+      - EUREKA_HOSTNAME=ms-eureka-server
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-config-server:
+    build:
+      context: ./ms-config-server
+      dockerfile: Dockerfile
+    container_name: servillantas-config-server
+    environment:
+      - SERVER_PORT=8888
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+    networks:
+      - backend-net
+    depends_on:
+      - ms-eureka-server
+    restart: unless-stopped
+
+  # ============================================================================
+  # MICROSERVICIOS DE NEGOCIO (Red privada interna - NO expuesta al exterior)
+  # ============================================================================
+  ms-autenticacion-usuarios:
+    build:
+      context: ./ms-autenticacion-usuarios
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-auth
+    environment:
+      - SERVER_PORT=8081
+      - DB_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USERNAME=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - JWT_SECRET=${JWT_SECRET:-dGVzdC1zZWNyZXQta2V5LXNob3VsZC1iZS12ZXJ5LWxvbmctYW5kLXNlY3VyZS0yNTYtYml0cw==}
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-inventario:
+    build:
+      context: ./ms-inventario
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-inventario
+    environment:
+      - SERVER_PORT=8083
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - AUTENTICACION_BASE_URL=http://ms-api-gateway:8080
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-compras:
+    build:
+      context: ./ms-compras
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-compras
+    environment:
+      - SERVER_PORT=8084
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - INVENTARIO_BASE_URL=http://ms-api-gateway:8080
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-ventas:
+    build:
+      context: ./ms-ventas
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-ventas
+    environment:
+      - SERVER_PORT=8085
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - INVENTARIO_BASE_URL=http://ms-api-gateway:8080
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-servicios:
+    build:
+      context: ./ms-servicios
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-servicios
+    environment:
+      - SERVER_PORT=8086
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - INVENTARIO_BASE_URL=http://ms-api-gateway:8080
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-alertas-notificaciones:
+    build:
+      context: ./ms-alertas-notificaciones
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-alertas
+    environment:
+      - SERVER_PORT=8087
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-reportes:
+    build:
+      context: ./ms-reportes
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-reportes
+    environment:
+      - SERVER_PORT=8088
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-asistente-ia:
+    build:
+      context: ./ms-asistente-ia
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-asistente
+    environment:
+      - SERVER_PORT=8089
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  # Base de datos PostgreSQL interna (opcional para desarrollo local)
+  postgres:
+    image: postgres:16-alpine
+    container_name: servillantas-postgres
+    environment:
+      - POSTGRES_DB=servillantas_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - backend-net
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+

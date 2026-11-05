@@ -1,0 +1,592 @@
+// Tokens y estilos globales
+
+:root {
+  /* Paleta Neutra y Fría */
+  --bg-app: #F6F7F8;
+  --surface-card: #FFFFFF;
+  --surface-subtle: #F1F3F5;
+  --surface-hover: #F8F9FA;
+  --border-color: #E2E5E9;
+  --border-strong: #CBD1D8;
+
+  /* Tipografía y Textos */
+  --text-primary: #1E2430;
+  --text-secondary: #5B6472;
+  --text-muted: #8A94A6;
+  --text-inverse: #FFFFFF;
+
+  /* Acento Funcional (Azul Acero Apagado) */
+  --accent-primary: #2E5A6C;
+  --accent-hover: #244857;
+  --accent-active: #1D3A46;
+  --accent-subtle: #EAF0F3;
+  --accent-border: #9CB5C1;
+  --focus-ring: rgba(46, 90, 108, 0.25);
+
+  /* Colores de Estado Semántico */
+  --state-success: #2F7A4F;
+  --state-success-bg: #EBF5EE;
+  --state-success-border: #C2E2CC;
+
+  --state-warning: #B54708;
+  --state-warning-bg: #FEF6EE;
+  --state-warning-border: #F9DBAF;
+
+  --state-danger: #B42318;
+  --state-danger-bg: #FEF3F2;
+  --state-danger-border: #FECDCA;
+
+  --state-info: #175CD3;
+  --state-info-bg: #EFF8FF;
+  --state-info-border: #B2DDFF;
+
+  /* Familias Tipográficas */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Espaciado */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radios */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Transiciones */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --surface-shadow: 0 8px 24px rgba(30, 55, 68, 0.055);
+  --surface-shadow-hover: 0 12px 30px rgba(30, 55, 68, 0.09);
+}
+
+/* Reset y Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media print {
+  .top-header,
+  .alert-toast,
+  app-toast-alertas,
+  app-inventory-assistant,
+  .header-actions,
+  button {
+    display: none !important;
+  }
+
+  body,
+  .shell-layout,
+  .main-content {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+}
+
+/* Accesibilidad & Foco */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Estilos de Enlaces y Botones Base */
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--accent-hover);
+  }
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Clases de Utilidad Globales */
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Botones Operativos */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  line-height: 1.3;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &.btn-primary {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--text-inverse);
+    box-shadow: 0 4px 10px rgba(46, 90, 108, 0.16);
+
+    &:hover:not(:disabled) {
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+      box-shadow: 0 6px 16px rgba(46, 90, 108, 0.24);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--accent-active);
+      border-color: var(--accent-active);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: var(--surface-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+
+    &:hover:not(:disabled) {
+      background-color: var(--accent-subtle);
+      border-color: var(--accent-border);
+      color: var(--accent-active);
+      box-shadow: 0 4px 12px rgba(46, 90, 108, 0.08);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--text-secondary);
+
+    &:hover:not(:disabled) {
+      background-color: var(--surface-subtle);
+      color: var(--text-primary);
+    }
+  }
+
+  &.btn-danger {
+    background-color: var(--surface-card);
+    border-color: var(--state-danger-border);
+    color: var(--state-danger);
+
+    &:hover:not(:disabled) {
+      background-color: var(--state-danger-bg);
+      border-color: var(--state-danger);
+    }
+  }
+
+  &.btn-sm {
+    min-height: 34px;
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Formularios Operativos */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+
+    .required-mark {
+      color: var(--state-danger);
+      margin-left: 2px;
+    }
+  }
+
+  .form-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .form-error {
+    font-size: 12px;
+    color: var(--state-danger);
+    font-weight: 500;
+  }
+}
+
+.form-control {
+  width: 100%;
+  min-height: 42px;
+  height: 42px;
+  padding: 0 14px;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-strong);
+  }
+
+  &:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    outline: none;
+  }
+
+  &:disabled, &[readonly] {
+    background-color: var(--surface-subtle);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+
+  &.has-error {
+    border-color: var(--state-danger);
+
+    &:focus {
+      border-color: var(--state-danger);
+      box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.15);
+    }
+  }
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 80px;
+  padding: 8px 12px;
+  resize: vertical;
+}
+
+select.form-control {
+  cursor: pointer;
+}
+
+/* Badges de Estado Funcionales */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  border: 1px solid transparent;
+
+  &.badge-success {
+    background-color: var(--state-success-bg);
+    color: var(--state-success);
+    border-color: var(--state-success-border);
+  }
+
+  &.badge-warning {
+    background-color: var(--state-warning-bg);
+    color: var(--state-warning);
+    border-color: var(--state-warning-border);
+  }
+
+  &.badge-danger {
+    background-color: var(--state-danger-bg);
+    color: var(--state-danger);
+    border-color: var(--state-danger-border);
+  }
+
+  &.badge-neutral {
+    background-color: var(--surface-subtle);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+  }
+
+  &.badge-info {
+    background-color: var(--state-info-bg);
+    color: var(--state-info);
+    border-color: var(--state-info-border);
+  }
+
+  &.badge-disabled {
+    background-color: #ECEFF1;
+    color: #78909C;
+    border-color: #CFD8DC;
+    font-size: 10.5px;
+    font-weight: 600;
+  }
+}
+
+/* Tablas Operativas Limpias */
+.table-container {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(30, 55, 68, 0.035);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+
+  thead {
+    background-color: var(--surface-subtle);
+    border-bottom: 1px solid var(--border-color);
+
+    th {
+      padding: 13px 16px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: left;
+      white-space: nowrap;
+      letter-spacing: 0.065em;
+      background: linear-gradient(180deg, #F5F7F8, #EFF2F4);
+
+      &.text-right {
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color var(--transition-fast);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: var(--surface-hover);
+      }
+
+      td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: var(--text-primary);
+
+        &.text-right {
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+/* Paneles y Tarjetas */
+.card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: var(--space-6);
+  box-shadow: var(--surface-shadow);
+}
+
+main.main-content {
+  background:
+    radial-gradient(ellipse at 92% 0, rgba(46, 90, 108, 0.045), transparent 34rem),
+    var(--bg-app);
+}
+
+main.main-content .page-container {
+  padding-top: 6px;
+}
+
+main.main-content .page-header {
+  gap: 24px;
+  margin-bottom: 28px;
+  padding: 4px 0 20px;
+  border-bottom: 1px solid rgba(203, 209, 216, 0.72);
+}
+
+main.main-content .page-title {
+  font-size: clamp(24px, 2.4vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+}
+
+main.main-content .page-subtitle {
+  margin-top: 7px;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+main.main-content .header-actions,
+main.main-content .form-actions,
+main.main-content .filters,
+main.main-content .panel-heading,
+main.main-content .list-heading {
+  gap: 16px;
+}
+
+main.main-content .panel {
+  position: relative;
+  margin-bottom: 22px;
+  padding: 24px;
+  border: 1px solid rgba(203, 209, 216, 0.78);
+  border-radius: 13px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.98), rgba(252,253,253,0.98));
+  box-shadow: var(--surface-shadow);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+main.main-content .panel:hover {
+  border-color: rgba(156, 181, 193, 0.8);
+  box-shadow: var(--surface-shadow-hover);
+}
+
+main.main-content .section-title,
+main.main-content .panel-heading h2,
+main.main-content .list-heading h2 {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+main.main-content .form-grid,
+main.main-content .filters,
+main.main-content .kpi-grid,
+main.main-content .charts-grid,
+main.main-content .content-grid {
+  gap: 18px;
+}
+
+main.main-content .form-group {
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+main.main-content .form-group label {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.015em;
+}
+
+main.main-content .data-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(234, 240, 243, 0.75), rgba(248, 249, 250, 0.8));
+}
+
+main.main-content .empty-state,
+main.main-content .empty {
+  padding: 34px 22px;
+}
+
+@media (max-width: 700px) {
+  main.main-content .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+  }
+
+  main.main-content .header-actions,
+  main.main-content .form-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  main.main-content .header-actions > .btn,
+  main.main-content .header-actions > a.btn,
+  main.main-content .form-actions > .btn {
+    flex: 1 1 auto;
+  }
+
+  main.main-content .panel {
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  main.main-content .form-grid,
+  main.main-content .filters,
+  main.main-content .kpi-grid,
+  main.main-content .charts-grid,
+  main.main-content .content-grid {
+    gap: 14px;
+  }
+}
+
+/* Indicador de Carga / Spinner */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+
+  &.spinner-dark {
+    border: 2px solid var(--border-color);
+    border-top-color: var(--accent-primary);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

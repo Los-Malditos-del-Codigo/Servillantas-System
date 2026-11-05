@@ -1,0 +1,4 @@
+jwt:
+  secret: test-secret-key-with-at-least-thirty-two-bytes
+spring.cloud.config.enabled: false
+eureka.client.enabled: false

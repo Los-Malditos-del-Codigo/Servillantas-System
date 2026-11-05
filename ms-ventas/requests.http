@@ -1,0 +1,89 @@
+### Variables de prueba
+@host = http://localhost:8085
+@idempotencyKey = {{$guid}}
+@correlationId = {{$guid}}
+@userId = 00000000-0000-0000-0000-000000000001
+@producto1 = 11111111-1111-1111-1111-111111111111
+@producto2 = 22222222-2222-2222-2222-222222222222
+
+### 1. Health check Actuator
+GET {{host}}/actuator/health
+Accept: application/json
+
+### 2. Registrar nueva venta (HU-18)
+POST {{host}}/api/v1/ventas
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+X-Correlation-Id: {{correlationId}}
+X-User-Id: {{userId}}
+
+{
+  "observacion": "Venta mostrador de llantas y accesorios",
+  "items": [
+    {
+      "productoId": "{{producto1}}",
+      "cantidad": 2,
+      "precioUnitario": 125.50
+    },
+    {
+      "productoId": "{{producto2}}",
+      "cantidad": 1,
+      "precioUnitario": 49.00
+    }
+  ]
+}
+
+### 3. Replay idempotente con la misma Idempotency-Key (HU-18)
+POST {{host}}/api/v1/ventas
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+X-Correlation-Id: {{correlationId}}
+X-User-Id: {{userId}}
+
+{
+  "observacion": "Venta mostrador de llantas y accesorios",
+  "items": [
+    {
+      "productoId": "{{producto1}}",
+      "cantidad": 2,
+      "precioUnitario": 125.50
+    },
+    {
+      "productoId": "{{producto2}}",
+      "cantidad": 1,
+      "precioUnitario": 49.00
+    }
+  ]
+}
+
+### 4. Conflicto de Idempotency-Key con payload distinto (409)
+POST {{host}}/api/v1/ventas
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+X-Correlation-Id: {{correlationId}}
+X-User-Id: {{userId}}
+
+{
+  "observacion": "Intento con otro payload",
+  "items": [
+    {
+      "productoId": "{{producto1}}",
+      "cantidad": 10,
+      "precioUnitario": 125.50
+    }
+  ]
+}
+
+### 5. Listar ventas paginadas (HU-19)
+GET {{host}}/api/v1/ventas?page=0&size=20&sortBy=fecha&sortDir=desc
+Accept: application/json
+X-Correlation-Id: {{correlationId}}
+
+### 6. Listar ventas filtradas por estado CONFIRMADA
+GET {{host}}/api/v1/ventas?estado=CONFIRMADA&page=0&size=10
+Accept: application/json
+
+### 7. Consultar detalle de venta por ID (HU-19)
+# Reemplazar {id} por el UUID de la venta creada
+GET {{host}}/api/v1/ventas/e8838706-c875-4c07-b3ff-c9bbba20149e
+Accept: application/json

@@ -1,0 +1,64 @@
+### Variables de prueba
+@host = http://localhost:8086
+@idempotencyKeyServicio = {{$guid}}
+@idempotencyKeyMaterial = {{$guid}}
+@correlationId = {{$guid}}
+@userId = 00000000-0000-0000-0000-000000000001
+@tipoServicioId = 33333333-3333-3333-3333-333333333333
+@productoId = 11111111-1111-1111-1111-111111111111
+
+### 1. Health check Actuator
+GET {{host}}/actuator/health
+Accept: application/json
+
+### 2. Listar tipos de servicio activos para select (HU-20)
+GET {{host}}/api/v1/tipos-servicio?activo=true
+Accept: application/json
+
+### 3. Registrar nuevo servicio de taller (HU-20)
+POST {{host}}/api/v1/servicios
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKeyServicio}}
+X-Correlation-Id: {{correlationId}}
+X-User-Id: {{userId}}
+
+{
+  "tipoServicioId": "{{tipoServicioId}}",
+  "precio": 45.00,
+  "observacion": "Cambio de pastillas y rectificación"
+}
+
+### 4. Replay idempotente del servicio (HU-20)
+POST {{host}}/api/v1/servicios
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKeyServicio}}
+X-Correlation-Id: {{correlationId}}
+X-User-Id: {{userId}}
+
+{
+  "tipoServicioId": "{{tipoServicioId}}",
+  "precio": 45.00,
+  "observacion": "Cambio de pastillas y rectificación"
+}
+
+### 5. Registrar material usado en un servicio (HU-21)
+# Reemplazar {servicioId} por el UUID retornado al crear el servicio
+POST {{host}}/api/v1/servicios/d38d3886-0fa9-432a-bc9e-bbbebe100001/materiales
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKeyMaterial}}
+X-Correlation-Id: {{correlationId}}
+X-User-Id: {{userId}}
+
+{
+  "productoId": "{{productoId}}",
+  "cantidad": 1
+}
+
+### 6. Consultar historial de servicios paginado (HU-22)
+GET {{host}}/api/v1/servicios?page=0&size=20&sortBy=fecha&sortDir=desc
+Accept: application/json
+
+### 7. Consultar detalle de un servicio con sus materiales (HU-22)
+# Reemplazar {id} por el UUID de un servicio existente
+GET {{host}}/api/v1/servicios/d38d3886-0fa9-432a-bc9e-bbbebe100001
+Accept: application/json

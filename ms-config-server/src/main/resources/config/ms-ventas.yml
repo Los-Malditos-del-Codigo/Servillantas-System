@@ -1,0 +1,2 @@
+server.port: ${SERVER_PORT:8085}
+inventario.base-url: ${INVENTARIO_BASE_URL:http://localhost:8083}

@@ -1,0 +1,10 @@
+package com.servillantas.servicios.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record AnularServicioRequestDto(
+    @NotBlank(message = "El motivo de anulación es obligatorio")
+    @Size(max = 500, message = "El motivo no puede exceder 500 caracteres")
+    String motivo
+) {}

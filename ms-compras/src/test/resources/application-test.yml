@@ -1,0 +1,34 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: ms-compras-test
+
+  datasource:
+    url: jdbc:h2:mem:comprasdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERINGS=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+    open-in-view: false
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+app:
+  cors:
+    allowed-origins: http://localhost:4200
+  auth:
+    default-user-id: 35021bd0-6171-4b12-ad68-49250a1627f3
+
+inventario:
+  base-url: http://localhost:8080
+  stub: true

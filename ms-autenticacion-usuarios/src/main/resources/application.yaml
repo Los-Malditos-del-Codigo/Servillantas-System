@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: ms-autenticacion-usuarios
+
+  datasource:
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:h2:file:C:/Users/fabri/Downloads/frontendmain/data/servillantas_db;AUTO_SERVER=TRUE;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}}
+    username: ${DB_USERNAME:${DB_USER:sa}}
+    password: ${DB_PASSWORD:}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    hikari:
+      pool-name: AutenticacionHikariPool
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:2}
+      minimum-idle: ${DB_MIN_IDLE:1}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:10000}
+      idle-timeout: ${DB_IDLE_TIMEOUT:60000}
+      max-lifetime: ${DB_MAX_LIFETIME:120000}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    properties:
+      hibernate:
+        default_schema: public
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+    show-sql: ${JPA_SHOW_SQL:false}
+    open-in-view: false
+
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: UTC
+
+server:
+  port: ${SERVER_PORT:8081}
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+jwt:
+  secret: ${JWT_SECRET:dGVzdC1zZWNyZXQta2V5LXNob3VsZC1iZS12ZXJ5LWxvbmctYW5kLXNlY3VyZS0yNTYtYml0cw==}
+  expiration: ${JWT_EXPIRATION:3600000}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.servillantas.rv.autenticacion: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: ${HIBERNATE_SQL_LOG:WARN}
+    org.hibernate.orm.jdbc.bind: ${HIBERNATE_BIND_LOG:WARN}
