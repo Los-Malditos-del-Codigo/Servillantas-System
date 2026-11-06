@@ -52,10 +52,7 @@ public class AlertasService {
 
         Page<Alerta> pageResult;
         if (estado != null && !estado.isBlank()) {
-            String estadoUpper = estado.trim().toUpperCase();
-            if (!Set.of("ACTIVA", "RESUELTA").contains(estadoUpper)) {
-                throw new ValidacionException("Estado de alerta inválido. Valores permitidos: ACTIVA, RESUELTA");
-            }
+            String estadoUpper = normalizarEstado(estado);
             pageResult = alertaRepository.findByEstado(estadoUpper, pageable);
         } else {
             pageResult = alertaRepository.findAll(pageable);
@@ -73,15 +70,38 @@ public class AlertasService {
 
     @Transactional
     public AlertaDto resolverAlerta(UUID id) {
+        return actualizarEstado(id, "RESUELTA");
+    }
+
+    @Transactional
+    public AlertaDto actualizarEstado(UUID id, String estadoRaw) {
+        if (estadoRaw == null || estadoRaw.isBlank()) {
+            throw new ValidacionException("El estado es obligatorio");
+        }
+        String nuevoEstado = normalizarEstado(estadoRaw);
         Alerta alerta = alertaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Alerta no encontrada con id: " + id));
 
-        alerta.setEstado("RESUELTA");
-        alerta.setResueltaAt(OffsetDateTime.now());
+        alerta.setEstado(nuevoEstado);
+        if ("RESUELTA".equals(nuevoEstado)) {
+            alerta.setResueltaAt(OffsetDateTime.now());
+        } else {
+            alerta.setResueltaAt(null);
+        }
         alerta.setUpdatedAt(OffsetDateTime.now());
 
         Alerta guardada = alertaRepository.save(alerta);
         return mapToDto(guardada);
+    }
+
+    private String normalizarEstado(String raw) {
+        String upper = raw.trim().toUpperCase();
+        return switch (upper) {
+            case "ACTIVA", "PENDIENTE" -> "ACTIVA";
+            case "LEIDA", "LEÍDA" -> "LEIDA";
+            case "RESUELTA" -> "RESUELTA";
+            default -> throw new ValidacionException("Estado de alerta inválido. Valores permitidos: ACTIVA, LEIDA, RESUELTA");
+        };
     }
 
     @Transactional

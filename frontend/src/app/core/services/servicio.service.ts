@@ -86,8 +86,13 @@ export class ServicioService {
       headers = headers.set('X-Correlation-Id', correlationId);
     }
 
+    const payload = {
+      ...dto,
+      tipo_servicio_id: dto.tipoServicioId,
+    };
+
     return this.http
-      .post<ServicioDetalleApi>(this.baseUrl, dto, { headers })
+      .post<ServicioDetalleApi>(this.baseUrl, payload, { headers })
       .pipe(map(mapServicioDetalleFromApi));
   }
 
@@ -97,8 +102,13 @@ export class ServicioService {
       headers = headers.set('X-Correlation-Id', correlationId);
     }
 
+    const payload = {
+      ...dto,
+      producto_id: dto.productoId,
+    };
+
     return this.http
-      .post<MaterialServicioApi>(`${this.baseUrl}/${servicioId}/materiales`, dto, { headers })
+      .post<MaterialServicioApi>(`${this.baseUrl}/${servicioId}/materiales`, payload, { headers })
       .pipe(map(mapMaterialFromApi));
   }
 

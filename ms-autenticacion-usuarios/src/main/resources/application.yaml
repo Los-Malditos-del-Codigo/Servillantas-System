@@ -41,7 +41,7 @@ server:
 
 jwt:
   secret: ${JWT_SECRET:dGVzdC1zZWNyZXQta2V5LXNob3VsZC1iZS12ZXJ5LWxvbmctYW5kLXNlY3VyZS0yNTYtYml0cw==}
-  expiration: ${JWT_EXPIRATION:3600000}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 app:
   cors:

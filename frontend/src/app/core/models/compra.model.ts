@@ -63,29 +63,32 @@ export interface PageResponse<T> {
 }
 
 export function mapDetalleCompraFromApi(api: DetalleCompraApi): DetalleCompra {
+  const raw = api as any;
   return {
     id: api.id,
-    productoId: api.producto_id,
-    cantidad: Number(api.cantidad),
-    precioUnitario: Number(api.precio_unitario),
-    subtotal: Number(api.subtotal),
-    createdAt: api.created_at,
+    productoId: api.producto_id ?? raw.productoId ?? '',
+    cantidad: Number(api.cantidad ?? 0),
+    precioUnitario: Number(api.precio_unitario ?? raw.costo_unitario ?? raw.costoUnitario ?? 0),
+    subtotal: Number(api.subtotal ?? 0),
+    createdAt: api.created_at ?? raw.createdAt ?? '',
   };
 }
 
 export function mapCompraResumenFromApi(api: CompraResumenApi): CompraResumen {
+  const raw = api as any;
+  const prov = raw.proveedor;
   return {
     id: api.id,
-    proveedorId: api.proveedor_id,
-    proveedorNombre: api.proveedor_nombre,
-    ruc: api.ruc,
+    proveedorId: prov?.id ?? api.proveedor_id ?? raw.proveedorId ?? '',
+    proveedorNombre: prov?.nombre ?? api.proveedor_nombre ?? raw.proveedorNombre ?? 'Proveedor',
+    ruc: prov?.ruc ?? api.ruc ?? null,
     estado: api.estado,
     fecha: api.fecha,
-    total: Number(api.total),
-    cantidadItems: api.cantidad_items,
-    recibidaAt: api.recibida_at,
-    anuladaAt: api.anulada_at,
-    motivoAnulacion: api.motivo_anulacion,
+    total: Number(api.total ?? 0),
+    cantidadItems: Number(api.cantidad_items ?? raw.cantidadItems ?? raw.items?.length ?? 0),
+    recibidaAt: api.recibida_at ?? raw.recibidaAt ?? null,
+    anuladaAt: api.anulada_at ?? raw.anuladaAt ?? null,
+    motivoAnulacion: api.motivo_anulacion ?? raw.motivoAnulacion ?? null,
   };
 }
 

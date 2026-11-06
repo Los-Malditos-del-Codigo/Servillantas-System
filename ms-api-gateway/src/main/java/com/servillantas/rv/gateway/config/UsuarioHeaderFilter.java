@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,6 +33,14 @@ public class UsuarioHeaderFilter implements GlobalFilter, Ordered {
     public static final String HEADER_USER_ROLE = "X-User-Role";
     public static final String HEADER_USER_EMAIL = "X-User-Email";
 
+    private static final List<String> DEDUPE_HEADERS = List.of(
+            HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+            HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+            HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+            HttpHeaders.VARY,
+            HEADER_CORRELATION_ID
+    );
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -42,8 +52,18 @@ public class UsuarioHeaderFilter implements GlobalFilter, Ordered {
         }
         final String activeCorrelationId = correlationId;
 
-        // Añadir correlationId a los headers de la respuesta
+        // Añadir correlationId a los headers de la respuesta y deduplicar cabeceras CORS antes del commit
         exchange.getResponse().getHeaders().set(HEADER_CORRELATION_ID, activeCorrelationId);
+        exchange.getResponse().beforeCommit(() -> {
+            HttpHeaders headers = exchange.getResponse().getHeaders();
+            for (String headerName : DEDUPE_HEADERS) {
+                List<String> values = headers.get(headerName);
+                if (values != null && values.size() > 1) {
+                    headers.set(headerName, values.get(0));
+                }
+            }
+            return Mono.empty();
+        });
 
         // 2. Extraer contexto de seguridad si existe JWT autenticado
         return ReactiveSecurityContextHolder.getContext()

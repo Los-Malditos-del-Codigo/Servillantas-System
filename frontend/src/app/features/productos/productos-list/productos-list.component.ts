@@ -673,9 +673,33 @@ export class ProductosListComponent implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.catalogoService.getCategorias().subscribe((c) => this.categorias.set(c));
-    this.catalogoService.getMarcas().subscribe((m) => this.marcas.set(m));
-    this.catalogoService.getUnidades().subscribe((u) => this.unidades.set(u));
+    this.catalogoService.getCategorias().subscribe({
+      next: (c) => {
+        this.categorias.set(c);
+        if (this.modalAbierto() && !this.productoEnEdicion && !this.productoForm.get('categoriaId')?.value && c.length > 0) {
+          this.productoForm.patchValue({ categoriaId: c[0].id });
+        }
+      },
+      error: (err) => console.warn('Error cargando categorías', err),
+    });
+    this.catalogoService.getMarcas().subscribe({
+      next: (m) => {
+        this.marcas.set(m);
+        if (this.modalAbierto() && !this.productoEnEdicion && !this.productoForm.get('marcaId')?.value && m.length > 0) {
+          this.productoForm.patchValue({ marcaId: m[0].id });
+        }
+      },
+      error: (err) => console.warn('Error cargando marcas', err),
+    });
+    this.catalogoService.getUnidades().subscribe({
+      next: (u) => {
+        this.unidades.set(u);
+        if (this.modalAbierto() && !this.productoEnEdicion && !this.productoForm.get('unidadMedidaId')?.value && u.length > 0) {
+          this.productoForm.patchValue({ unidadMedidaId: u[0].id });
+        }
+      },
+      error: (err) => console.warn('Error cargando unidades', err),
+    });
   }
 
   cargarProductos(): void {
@@ -778,14 +802,17 @@ export class ProductosListComponent implements OnInit {
 
   // Acciones CRUD Rápido
   abrirModalCrear(): void {
+    if (this.unidades().length === 0 || this.categorias().length === 0 || this.marcas().length === 0) {
+      this.cargarCatalogos();
+    }
     this.productoEnEdicion = null;
     this.formErrorGeneral = '';
     this.productoForm.reset({
       codigo: '',
       nombre: '',
       descripcion: '',
-      categoriaId: null,
-      marcaId: null,
+      categoriaId: this.categorias()[0]?.id || null,
+      marcaId: this.marcas()[0]?.id || null,
       unidadMedidaId: this.unidades()[0]?.id || '',
       precioVenta: 0,
       stockMinimo: 0,
@@ -825,7 +852,14 @@ export class ProductosListComponent implements OnInit {
       return;
     }
 
-    const formVal = this.productoForm.value;
+    const rawVal = this.productoForm.value;
+    const formVal = {
+      ...rawVal,
+      codigo: rawVal.codigo.trim().toUpperCase(),
+      nombre: rawVal.nombre.trim(),
+      categoriaId: rawVal.categoriaId || this.categorias()[0]?.id || null,
+      unidadMedidaId: rawVal.unidadMedidaId || this.unidades()[0]?.id || '',
+    };
 
     // Validación de unicidad de código en el cliente
     const codigoNormalizado = formVal.codigo.trim().toUpperCase();

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -59,6 +60,19 @@ public class AlertasController {
     public ResponseEntity<AlertaDto> resolver(@PathVariable UUID id) {
         AlertaDto resuelta = alertasService.resolverAlerta(id);
         return ResponseEntity.ok(resuelta);
+    }
+
+    @PatchMapping("/{id}/estado")
+    @Operation(summary = "Actualizar estado de alerta", description = "Actualiza el estado de una alerta (pendiente/ACTIVA, leida/LEIDA, resuelta/RESUELTA).")
+    @ApiResponse(responseCode = "200", description = "Estado actualizado con éxito")
+    @ApiResponse(responseCode = "404", description = "Alerta no encontrada")
+    public ResponseEntity<AlertaDto> actualizarEstado(
+            @PathVariable UUID id,
+            @RequestBody Map<String, String> body
+    ) {
+        String estado = body != null ? body.get("estado") : null;
+        AlertaDto actualizada = alertasService.actualizarEstado(id, estado);
+        return ResponseEntity.ok(actualizada);
     }
 
     @PostMapping("/{id}/notificaciones")

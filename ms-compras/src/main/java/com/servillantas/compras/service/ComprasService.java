@@ -328,7 +328,8 @@ public class ComprasService {
                 c.getObservacion(),
                 c.getRecibidaAt(),
                 c.getAnuladaAt(),
-                c.getCreatedAt()
+                c.getCreatedAt(),
+                c.getItems() != null ? c.getItems().size() : 0
         );
     }
 

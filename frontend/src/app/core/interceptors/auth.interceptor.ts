@@ -1,32 +1,52 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const token = authService.token;
+  const isLoginReq = req.url.includes('/auth/login');
 
-  const authReq = token
-    ? req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-    : req;
+  const sendWithToken = (token: string | null) => {
+    const authReq = token
+      ? req.clone({
+          setHeaders: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      : req;
+    return next(authReq);
+  };
 
-  return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      // El backend puede responder con "message" (ApiError) o "detail" (ProblemDetail);
-      // el front lee "mensaje". Se normaliza aquí para no repetir el fallback en cada componente.
-      if (error?.error && typeof error.error === 'object' && !error.error.mensaje) {
-        const origen = error.error.message ?? error.error.detail;
-        if (origen) {
-          error.error.mensaje = origen;
-        }
+  const normalizeError = (error: HttpErrorResponse) => {
+    if (error?.error && typeof error.error === 'object' && !error.error.mensaje) {
+      const origen = error.error.message ?? error.error.detail;
+      if (origen) {
+        error.error.mensaje = origen;
       }
+    }
+    return throwError(() => error);
+  };
 
-      return throwError(() => error);
+  if (!isLoginReq && authService.token && !authService.isTokenValid()) {
+    return authService.renovarSesionAutomatica().pipe(
+      switchMap((sesion) => sendWithToken(sesion.token)),
+      catchError((err: HttpErrorResponse) => normalizeError(err))
+    );
+  }
+
+  return sendWithToken(authService.token).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !isLoginReq) {
+        return authService.renovarSesionAutomatica().pipe(
+          switchMap((sesion) => sendWithToken(sesion.token)),
+          catchError((err: HttpErrorResponse) => {
+            authService.logout();
+            return normalizeError(err);
+          })
+        );
+      }
+      return normalizeError(error);
     })
   );
 };

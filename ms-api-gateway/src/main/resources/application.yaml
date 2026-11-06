@@ -14,6 +14,8 @@ spring:
             pool:
               type: elastic
               max-idle-time: 15s
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials Access-Control-Expose-Headers Vary X-Correlation-Id, RETAIN_FIRST
           routes:
             - id: ms-autenticacion
               uri: ${AUTH_SERVICE_URL:http://localhost:8081}

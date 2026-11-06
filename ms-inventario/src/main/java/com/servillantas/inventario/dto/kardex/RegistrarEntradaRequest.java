@@ -1,5 +1,6 @@
 package com.servillantas.inventario.dto.kardex;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import java.util.UUID;
 public record RegistrarEntradaRequest(
 
         @NotNull(message = "El producto es obligatorio")
+        @JsonAlias({"producto_id", "productoId"})
         UUID productoId,
 
         @NotNull(message = "La cantidad es obligatoria")
@@ -18,6 +20,7 @@ public record RegistrarEntradaRequest(
         BigDecimal cantidad,
 
         @DecimalMin(value = "0.0", message = "El costo unitario no puede ser negativo")
+        @JsonAlias({"costo_unitario", "costoUnitario"})
         BigDecimal costoUnitario,
 
         @Size(max = 180, message = "El proveedor no puede superar 180 caracteres")

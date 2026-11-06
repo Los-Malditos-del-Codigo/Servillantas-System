@@ -60,5 +60,5 @@ management:
         enabled: true
 
 inventario:
-  base-url: ${INVENTARIO_BASE_URL:http://localhost:8080}
-  stub: ${INVENTARIO_STUB:true}
+  base-url: ${INVENTARIO_BASE_URL:http://localhost:8083}
+  stub: ${INVENTARIO_STUB:false}

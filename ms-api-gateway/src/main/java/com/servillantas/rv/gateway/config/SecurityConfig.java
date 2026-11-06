@@ -76,12 +76,13 @@ public class SecurityConfig {
                         .pathMatchers("/error").permitAll()
                         .pathMatchers("/actuator/health/**", "/actuator/info").permitAll()
 
-                        // Endpoints que requieren rol específico
-                        .pathMatchers(HttpMethod.POST, "/api/v1/productos/**").hasRole("PROPIETARIO")
-                        .pathMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasRole("PROPIETARIO")
-                        .pathMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasRole("PROPIETARIO")
+                        // Endpoints de catálogo y productos accesibles para usuarios autenticados (PROPIETARIO y PERSONAL)
+                        .pathMatchers(HttpMethod.GET, "/api/v1/categorias/**", "/api/v1/marcas/**", "/api/v1/unidades-medida/**", "/api/v1/productos/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/productos/**").hasAnyRole("PROPIETARIO", "PERSONAL")
+                        .pathMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasAnyRole("PROPIETARIO", "PERSONAL")
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasAnyRole("PROPIETARIO", "PERSONAL")
                         .pathMatchers("/api/v1/categorias/**", "/api/v1/marcas/**", "/api/v1/unidades-medida/**")
-                            .hasRole("PROPIETARIO")
+                            .hasAnyRole("PROPIETARIO", "PERSONAL")
 
                         // Resto de operaciones de la API requieren token JWT válido
                         .pathMatchers("/api/v1/**").authenticated()

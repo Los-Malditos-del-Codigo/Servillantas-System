@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Categoria, Marca, UnidadMedida } from '../models/catalogos.model';
 
@@ -14,7 +15,9 @@ export class CatalogoService {
 
   /* Categorías */
   getCategorias(): Observable<Categoria[]> {
-    return this.http.get<Categoria[]>(`${this.baseUrl}/categorias`);
+    return this.http.get<any>(`${this.baseUrl}/categorias`).pipe(
+      map((res) => (Array.isArray(res) ? res : (res?.content ?? [])))
+    );
   }
 
   getCategoriaById(id: string): Observable<Categoria> {
@@ -35,7 +38,9 @@ export class CatalogoService {
 
   /* Marcas */
   getMarcas(): Observable<Marca[]> {
-    return this.http.get<Marca[]>(`${this.baseUrl}/marcas`);
+    return this.http.get<any>(`${this.baseUrl}/marcas`).pipe(
+      map((res) => (Array.isArray(res) ? res : (res?.content ?? [])))
+    );
   }
 
   getMarcaById(id: string): Observable<Marca> {
@@ -56,7 +61,9 @@ export class CatalogoService {
 
   /* Unidades de Medida */
   getUnidades(): Observable<UnidadMedida[]> {
-    return this.http.get<UnidadMedida[]>(`${this.baseUrl}/unidades-medida`);
+    return this.http.get<any>(`${this.baseUrl}/unidades-medida`).pipe(
+      map((res) => (Array.isArray(res) ? res : (res?.content ?? [])))
+    );
   }
 
   getUnidadById(id: string): Observable<UnidadMedida> {

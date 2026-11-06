@@ -46,8 +46,13 @@ export class ProveedorService {
     }
 
     return this.http
-      .get<ProveedorApi[]>(this.baseUrl, { params })
-      .pipe(map((items) => items.map(mapProveedorFromApi)));
+      .get<any>(this.baseUrl, { params })
+      .pipe(
+        map((res) => {
+          const items: ProveedorApi[] = Array.isArray(res) ? res : (res?.content ?? []);
+          return items.map(mapProveedorFromApi);
+        })
+      );
   }
 
   obtenerPorId(id: string): Observable<Proveedor> {

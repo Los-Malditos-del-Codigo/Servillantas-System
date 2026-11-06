@@ -1,5 +1,6 @@
 package com.servillantas.inventario.dto.kardex;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import java.util.UUID;
 public record RegistrarSalidaRequest(
 
         @NotNull(message = "El producto es obligatorio")
+        @JsonAlias({"producto_id", "productoId"})
         UUID productoId,
 
         @NotNull(message = "La cantidad es obligatoria")

@@ -38,14 +38,22 @@ export class TipoServicioService {
   }
 
   crear(dto: CrearTipoServicioDto): Observable<TipoServicio> {
+    const payload = {
+      ...dto,
+      precio_referencial: dto.precioReferencial,
+    };
     return this.http
-      .post<TipoServicioApi>(this.baseUrl, dto)
+      .post<TipoServicioApi>(this.baseUrl, payload)
       .pipe(map(mapTipoServicioFromApi));
   }
 
   actualizar(id: string, dto: Partial<CrearTipoServicioDto>): Observable<TipoServicio> {
+    const payload = {
+      ...dto,
+      ...(dto.precioReferencial !== undefined ? { precio_referencial: dto.precioReferencial } : {}),
+    };
     return this.http
-      .put<TipoServicioApi>(`${this.baseUrl}/${id}`, dto)
+      .put<TipoServicioApi>(`${this.baseUrl}/${id}`, payload)
       .pipe(map(mapTipoServicioFromApi));
   }
 

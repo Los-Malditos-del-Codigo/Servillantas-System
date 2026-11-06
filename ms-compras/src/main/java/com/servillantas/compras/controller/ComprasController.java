@@ -16,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 @RestController
@@ -24,6 +26,7 @@ import java.util.UUID;
 @Tag(name = "Compras", description = "Endpoints para registro, historial y recepción de compras (HU-16, HU-17, HU-46)")
 public class ComprasController {
 
+    private static final ZoneId ZONE_LIMA = ZoneId.of("America/Lima");
     private final ComprasService comprasService;
 
     public ComprasController(ComprasService comprasService) {
@@ -58,11 +61,17 @@ public class ComprasController {
             @RequestParam(name = "estado", required = false) String estado,
             @RequestParam(name = "fecha_inicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime fechaInicio,
             @RequestParam(name = "fecha_fin", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime fechaFin,
+            @RequestParam(name = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(name = "hasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
             @PageableDefault(size = 10, sort = "fecha") Pageable pageable
     ) {
         UUID provId = proveedorId != null ? proveedorId : proveedorIdAlt;
+        OffsetDateTime inicio = fechaInicio != null ? fechaInicio
+                : (desde != null ? desde.atStartOfDay(ZONE_LIMA).toOffsetDateTime() : null);
+        OffsetDateTime fin = fechaFin != null ? fechaFin
+                : (hasta != null ? hasta.plusDays(1).atStartOfDay(ZONE_LIMA).toOffsetDateTime().minusNanos(1) : null);
         PageResponseDto<CompraResumenDto> resultado = comprasService.listarCompras(
-                provId, estado, fechaInicio, fechaFin, pageable
+                provId, estado, inicio, fin, pageable
         );
         return ResponseEntity.ok(resultado);
     }

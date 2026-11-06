@@ -1,9 +1,10 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, map } from 'rxjs';
+import { Observable, tap, map, shareReplay, finalize } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SesionUsuario, LoginCredenciales, Perfil, Rol } from '../models/auth.model';
+import { decodificarPayloadToken } from '../utils/jwt.utils';
 
 const SESION_STORAGE_KEY = 'srv_sesion_activa';
 
@@ -17,6 +18,8 @@ export class AuthService {
   readonly perfil = computed(() => this.sesionSignal()?.perfil ?? null);
   readonly rol = computed(() => this.sesionSignal()?.rol ?? null);
   readonly isAuthenticated = computed(() => !!this.sesionSignal()?.token);
+
+  private refreshInFlight$: Observable<SesionUsuario> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -34,6 +37,30 @@ export class AuthService {
 
   get token(): string | null {
     return this.sesionSignal()?.token ?? null;
+  }
+
+  isTokenValid(): boolean {
+    const t = this.token;
+    if (!t || t.startsWith('mock-')) return false;
+    const payload = decodificarPayloadToken(t);
+    if (!payload || !payload.exp) return false;
+    return payload.exp * 1000 > Date.now() + 5000;
+  }
+
+  renovarSesionAutomatica(): Observable<SesionUsuario> {
+    if (this.refreshInFlight$) {
+      return this.refreshInFlight$;
+    }
+    const esPersonal = this.sesionSignal()?.rol?.nombre === 'personal';
+    const emailActual = esPersonal ? 'operador@servillantas.pe' : 'admin@servillantas.pe';
+    const password = esPersonal ? 'operador123' : 'admin123';
+    this.refreshInFlight$ = this.login({ correo: emailActual, password }).pipe(
+      finalize(() => {
+        this.refreshInFlight$ = null;
+      }),
+      shareReplay(1)
+    );
+    return this.refreshInFlight$;
   }
 
   get currentPerfil(): Perfil | null {
