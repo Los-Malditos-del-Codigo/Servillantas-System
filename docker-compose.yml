@@ -31,10 +31,10 @@ services:
       - EUREKA_URL=http://ms-eureka-server:8761/eureka/
       - CONFIG_SERVER_URL=http://ms-config-server:8888
       - JWT_SECRET=${JWT_SECRET:-dGVzdC1zZWNyZXQta2V5LXNob3VsZC1iZS12ZXJ5LWxvbmctYW5kLXNlY3VyZS0yNTYtYml0cw==}
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost,https://*.vercel.app}
       - AUTH_SERVICE_URL=http://ms-autenticacion-usuarios:8081
-      - PRODUCTOS_SERVICE_URL=http://msvc-producto:8082
-      - INVENTARIO_SERVICE_URL=http://msvc-inventario:8083
+      - PRODUCTOS_SERVICE_URL=http://ms-productos:8082
+      - INVENTARIO_SERVICE_URL=http://ms-inventario:8083
       - COMPRAS_SERVICE_URL=http://ms-compras:8084
       - VENTAS_SERVICE_URL=http://ms-ventas:8085
       - SERVICIOS_SERVICE_URL=http://ms-servicios:8086
@@ -92,6 +92,22 @@ services:
       - DB_USERNAME=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - JWT_SECRET=${JWT_SECRET:-dGVzdC1zZWNyZXQta2V5LXNob3VsZC1iZS12ZXJ5LWxvbmctYW5kLXNlY3VyZS0yNTYtYml0cw==}
+      - EUREKA_URL=http://ms-eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://ms-config-server:8888
+    networks:
+      - backend-net
+    restart: unless-stopped
+
+  ms-productos:
+    build:
+      context: ./ms-productos
+      dockerfile: Dockerfile
+    container_name: servillantas-ms-productos
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://postgres:5432/servillantas_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - EUREKA_URL=http://ms-eureka-server:8761/eureka/
       - CONFIG_SERVER_URL=http://ms-config-server:8888
     networks:
