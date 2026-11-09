@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "dist/servillantas-rv/browser",
   "cleanUrls": true,
   "rewrites": [
     {
@@ -8,4 +9,3 @@
     }
   ]
 }
-

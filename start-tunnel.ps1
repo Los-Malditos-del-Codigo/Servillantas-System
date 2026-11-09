@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   Inicia el túnel HTTPS público y gratuito de Cloudflare hacia el API Gateway (puerto 8080).
 #>
@@ -8,3 +8,4 @@ Write-Host "==========================================================" -Foregro
 Write-Host "Conectando http://localhost:8080 a la red global de Cloudflare..." -ForegroundColor Yellow
 
 .\cloudflared.exe tunnel --url http://localhost:8080
+
