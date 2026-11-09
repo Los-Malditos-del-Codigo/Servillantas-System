@@ -130,12 +130,7 @@ public class SecurityConfig {
             @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsStr) {
 
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = Arrays.stream(allowedOriginsStr.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
-
-        configuration.setAllowedOrigins(origins);
+        configuration.addAllowedOriginPattern("*");
         configuration.setAllowedMethods(METODOS_PERMITIDOS);
         configuration.setAllowedHeaders(HEADERS_PERMITIDOS);
         configuration.setExposedHeaders(HEADERS_EXPUESTOS);
