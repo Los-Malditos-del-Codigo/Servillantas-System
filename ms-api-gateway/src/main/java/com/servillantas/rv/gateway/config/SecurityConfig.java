@@ -76,8 +76,17 @@ public class SecurityConfig {
                         .pathMatchers("/error").permitAll()
                         .pathMatchers("/actuator/health/**", "/actuator/info").permitAll()
 
-                        // Endpoints de catálogo y productos accesibles para usuarios autenticados (PROPIETARIO y PERSONAL)
-                        .pathMatchers(HttpMethod.GET, "/api/v1/categorias/**", "/api/v1/marcas/**", "/api/v1/unidades-medida/**", "/api/v1/productos/**").permitAll()
+                        // Endpoints de catálogo, productos e inventario de solo lectura accesibles para consulta pública / frontend
+                        .pathMatchers(HttpMethod.GET,
+                                "/api/v1/categorias/**",
+                                "/api/v1/marcas/**",
+                                "/api/v1/unidades-medida/**",
+                                "/api/v1/productos/**",
+                                "/api/v1/inventarios/**",
+                                "/api/v1/inventario/**",
+                                "/api/v1/proveedores/**",
+                                "/api/v1/tipos-servicio/**"
+                        ).permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/productos/**").hasAnyRole("PROPIETARIO", "PERSONAL")
                         .pathMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasAnyRole("PROPIETARIO", "PERSONAL")
                         .pathMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasAnyRole("PROPIETARIO", "PERSONAL")

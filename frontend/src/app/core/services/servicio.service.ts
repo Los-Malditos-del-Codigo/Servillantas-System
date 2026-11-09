@@ -87,8 +87,10 @@ export class ServicioService {
     }
 
     const payload = {
-      ...dto,
       tipo_servicio_id: dto.tipoServicioId,
+      precio: dto.precio,
+      fecha: dto.fecha,
+      observacion: dto.observacion,
     };
 
     return this.http
@@ -103,8 +105,8 @@ export class ServicioService {
     }
 
     const payload = {
-      ...dto,
       producto_id: dto.productoId,
+      cantidad: dto.cantidad,
     };
 
     return this.http

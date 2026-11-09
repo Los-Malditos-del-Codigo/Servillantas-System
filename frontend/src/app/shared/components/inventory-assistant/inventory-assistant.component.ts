@@ -6,6 +6,7 @@ import { Inventario } from '../../../core/models/inventario.model';
 import { Producto } from '../../../core/models/producto.model';
 import { InventarioService } from '../../../core/services/inventario.service';
 import { ProductoService } from '../../../core/services/producto.service';
+import { GeminiService } from '../../../core/services/gemini.service';
 
 type MessageRole = 'assistant' | 'user';
 interface ChatMessage {
@@ -134,7 +135,7 @@ interface ChatMessage {
           </button>
         </form>
         <p class="assistant-disclaimer">
-          Prototipo de consultas. Las respuestas usan los datos actuales del sistema; aún no está conectado a un modelo de IA.
+          Asistente inteligente Servillantas RV potenciado con Google Gemini e inventario en tiempo real.
         </p>
       </section>
     }
@@ -475,6 +476,7 @@ interface ChatMessage {
 export class InventoryAssistantComponent {
   private readonly inventarioService = inject(InventarioService);
   private readonly productoService = inject(ProductoService);
+  private readonly geminiService = inject(GeminiService);
   private dataLoaded = false;
 
   readonly abierto = signal(false);
@@ -514,9 +516,9 @@ export class InventoryAssistantComponent {
         this.dataLoaded = true;
         this.cargando.set(false);
         if (this.pendingQuestion) {
-          const answer = this.responder(this.pendingQuestion);
+          const q = this.pendingQuestion;
           this.pendingQuestion = '';
-          this.mensajes.update((messages) => [...messages, { role: 'assistant', text: answer }]);
+          this.procesarRespuesta(q);
         }
       },
       error: () => {
@@ -548,7 +550,25 @@ export class InventoryAssistantComponent {
       return;
     }
 
-    this.mensajes.update((messages) => [...messages, { role: 'assistant', text: this.responder(pregunta) }]);
+    this.procesarRespuesta(pregunta);
+  }
+
+  private procesarRespuesta(pregunta: string): void {
+    this.cargando.set(true);
+    this.geminiService
+      .generarRespuesta(pregunta, this.productos(), this.inventario())
+      .subscribe({
+        next: (geminiRes) => {
+          const respuesta = geminiRes && geminiRes.trim() ? geminiRes : this.responder(pregunta);
+          this.mensajes.update((messages) => [...messages, { role: 'assistant', text: respuesta }]);
+          this.cargando.set(false);
+        },
+        error: () => {
+          const respuesta = this.responder(pregunta);
+          this.mensajes.update((messages) => [...messages, { role: 'assistant', text: respuesta }]);
+          this.cargando.set(false);
+        },
+      });
   }
 
   onEnter(event: Event): void {

@@ -1,21 +1,78 @@
 package com.servillantas.servicios.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public record CrearServicioRequestDto(
+public class CrearServicioRequestDto {
+
     @NotNull(message = "El tipoServicioId es obligatorio")
-    @JsonAlias({"tipoServicioId", "tipo_servicio_id"})
-    UUID tipoServicioId,
+    private UUID tipoServicioId;
 
     @NotNull(message = "El precio es obligatorio")
     @DecimalMin(value = "0.00", message = "El precio debe ser mayor o igual a 0")
-    BigDecimal precio,
+    private BigDecimal precio;
 
-    OffsetDateTime fecha,
-    String observacion
-) {}
+    private OffsetDateTime fecha;
+    private String observacion;
+
+    public CrearServicioRequestDto() {
+    }
+
+    public CrearServicioRequestDto(UUID tipoServicioId, BigDecimal precio, OffsetDateTime fecha, String observacion) {
+        this.tipoServicioId = tipoServicioId;
+        this.precio = precio;
+        this.fecha = fecha;
+        this.observacion = observacion;
+    }
+
+    public UUID tipoServicioId() {
+        return tipoServicioId;
+    }
+
+    public BigDecimal precio() {
+        return precio;
+    }
+
+    public OffsetDateTime fecha() {
+        return fecha;
+    }
+
+    public String observacion() {
+        return observacion;
+    }
+
+    public UUID getTipoServicioId() {
+        return tipoServicioId;
+    }
+
+    public void setTipoServicioId(UUID tipoServicioId) {
+        this.tipoServicioId = tipoServicioId;
+    }
+
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
+
+    public OffsetDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(OffsetDateTime fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+}
