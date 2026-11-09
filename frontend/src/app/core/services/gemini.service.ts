@@ -52,7 +52,7 @@ ${contextoInventario}
 4. Asesoría técnica: Si te consultan por compatibilidad, viscosidad (ej. 15W-40) o especificaciones de llantas y baterías, aporta una breve recomendación experta y orientativa.
 5. Estilo: Sé claro, conciso y bien estructurado (utiliza viñetas o párrafos cortos según convenga). Evita respuestas excesivamente largas a menos que se te pida un análisis detallado.`;
 
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(this.apiKey)}`;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'X-goog-api-key': this.apiKey,
@@ -74,8 +74,13 @@ ${contextoInventario}
     return this.http.post<any>(url, body, { headers }).pipe(
       timeout(12000),
       map((res) => {
-        const candidate = res?.candidates?.[0]?.content?.parts?.[0]?.text;
-        return candidate ? candidate.trim() : null;
+        const parts = res?.candidates?.[0]?.content?.parts;
+        if (!parts || !Array.isArray(parts)) return null;
+        const text = parts.map((p: any) => p.text || '').join('').trim();
+        if (text) {
+          console.info('[Gemini AI] Respuesta generada con éxito por Google Gemini.');
+        }
+        return text || null;
       }),
       catchError((err) => {
         console.warn('Gemini API error o timeout, usando motor local de respaldo:', err?.error?.error?.message || err);
