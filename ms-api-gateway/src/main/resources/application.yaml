@@ -8,6 +8,27 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns:
+                  - "*"
+                allowedMethods:
+                  - "GET"
+                  - "POST"
+                  - "PUT"
+                  - "DELETE"
+                  - "OPTIONS"
+                  - "PATCH"
+                allowedHeaders:
+                  - "*"
+                exposedHeaders:
+                  - "Authorization"
+                  - "Content-Disposition"
+                  - "X-Correlation-Id"
+                allowCredentials: true
+                maxAge: 3600
           httpclient:
             connect-timeout: 5000
             response-timeout: 30s
@@ -16,6 +37,7 @@ spring:
               max-idle-time: 15s
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials Access-Control-Expose-Headers Vary X-Correlation-Id, RETAIN_FIRST
+            - RemoveRequestHeader=Origin
           routes:
             - id: ms-autenticacion
               uri: ${AUTH_SERVICE_URL:http://localhost:8081}
