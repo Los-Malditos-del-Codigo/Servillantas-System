@@ -11,7 +11,7 @@ import { Inventario } from '../models/inventario.model';
 })
 export class GeminiService {
   private readonly http: HttpClient;
-  private readonly apiKey = (environment as any).geminiApiKey || 'AQ.Ab8RN6IXES3v-10pl1PqrHGuA6ze_xHGCqc7hb6IPreMtpnT-w';
+  private readonly apiKey = (environment as any).geminiApiKey || 'AIzaSyAeoKYcooI6mZVEXpKV5nS_Rty_-IDXctM';
 
   constructor(handler: HttpBackend) {
     // Usar HttpBackend para desacoplar llamadas directas a Google de la sesion del frontend
@@ -52,7 +52,7 @@ ${contextoInventario}
 4. Asesoría técnica: Si te consultan por compatibilidad, viscosidad (ej. 15W-40) o especificaciones de llantas y baterías, aporta una breve recomendación experta y orientativa.
 5. Estilo: Sé claro, conciso y bien estructurado (utiliza viñetas o párrafos cortos según convenga). Evita respuestas excesivamente largas a menos que se te pida un análisis detallado.`;
 
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'X-goog-api-key': this.apiKey,
