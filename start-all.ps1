@@ -29,6 +29,19 @@ $logsDir = Join-Path $root "logs"
 if (-not (Test-Path $dataDir)) { New-Item -ItemType Directory -Path $dataDir | Out-Null }
 if (-not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir | Out-Null }
 
+# 2.1 Carga de variables de entorno desde .env
+$envFile = Join-Path $root ".env"
+if (Test-Path $envFile) {
+    Get-Content $envFile | Where-Object { $_ -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$' } | ForEach-Object {
+        $name = $matches[1]
+        $val = $matches[2].Trim()
+        [System.Environment]::SetEnvironmentVariable($name, $val, [System.EnvironmentVariableTarget]::Process)
+    }
+    Write-Host "[OK] Variables cargadas desde .env (PostgreSQL Supabase)" -ForegroundColor Green
+}
+
+$dbEnv = "set DB_URL=jdbc:postgresql://aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require&& set DB_USER=postgres.uakfdyhqbdijfputtrxb&& set DB_USERNAME=postgres.uakfdyhqbdijfputtrxb&& set DB_PASSWORD=rgaBnuuuvlKkJw3B&& set DB_DRIVER=org.postgresql.Driver&& set SPRING_DATASOURCE_URL=jdbc:postgresql://aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require&& set SPRING_DATASOURCE_USERNAME=postgres.uakfdyhqbdijfputtrxb&& set SPRING_DATASOURCE_PASSWORD=rgaBnuuuvlKkJw3B&& set SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver&& set JPA_DDL_AUTO=none&& set SPRING_JPA_HIBERNATE_DDL_AUTO=none&& "
+
 $services = @(
     @{ Name = "ms-productos"; Port = 8082; Delay = 10 },
     @{ Name = "ms-autenticacion-usuarios"; Port = 8081; Delay = 3 },
@@ -52,7 +65,7 @@ foreach ($svc in $services) {
     $mvnCmd = if (Test-Path (Join-Path $svcPath "mvnw.cmd")) { "mvnw.cmd" } else { "mvn" }
     
     Start-Process -FilePath "cmd.exe" `
-        -ArgumentList "/c set JAVA_HOME=C:\Users\fabri\.jdks\ms-21.0.11&& set PATH=C:\Users\fabri\.jdks\ms-21.0.11\bin;%PATH%&& cd /d `"$svcPath`" && $mvnCmd spring-boot:run -Dspring-boot.run.jvmArguments=-Xmx160m > `"$logPath`" 2>&1" `
+        -ArgumentList "/c set JAVA_HOME=C:\Users\fabri\.jdks\ms-21.0.11&& set PATH=C:\Users\fabri\.jdks\ms-21.0.11\bin;%PATH%&& $($dbEnv)cd /d `"$svcPath`" && $mvnCmd spring-boot:run -Dspring-boot.run.jvmArguments=-Xmx160m > `"$logPath`" 2>&1" `
         -WindowStyle Hidden
     
     Write-Host " [INICIADO]" -ForegroundColor Green
